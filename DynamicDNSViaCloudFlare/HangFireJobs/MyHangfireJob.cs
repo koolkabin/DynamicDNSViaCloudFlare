@@ -47,6 +47,7 @@ namespace DynamicDNSViaCloudFlare.HangFireJobs
         {
             PublicIPData d1 = GetPublicIp();
             if (!d1.status) { throw new Exception(d1.ErrorMsg); }
+            Console.WriteLine("Public IP: " + d1.IP);
 
             CloudFlareZOneUpdate r2 = new CloudFlareZOneUpdate() { content = d1.IP, name = data.DNS_Record_Name };
 
