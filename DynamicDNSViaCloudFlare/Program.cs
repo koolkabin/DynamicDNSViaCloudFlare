@@ -44,7 +44,7 @@ namespace DynamicDNSViaCloudFlare
             app.UseHangfireServer();
 
             var myJob = new MyHangfireJob(builder.Configuration);
-            RecurringJob.AddOrUpdate(() => myJob.Execute(), Cron.MinuteInterval(5));
+            RecurringJob.AddOrUpdate(() => myJob.Execute(), Cron.MinuteInterval(2));
 
 
             app.MapRazorPages();
