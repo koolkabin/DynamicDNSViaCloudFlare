@@ -1,8 +1,9 @@
-using DynamicDNSViaCloudFlare.HangFireJobs;
+using DynamicDNSViaCloudFlare.Helpers;
 using DynamicDNSViaCloudFlare.Models;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Configuration;
 using System.Runtime.CompilerServices;
@@ -18,7 +19,7 @@ namespace DynamicDNSViaCloudFlare
             // Add services to the container.
             builder.Services.AddRazorPages();
 
-            ConfigureServices(builder, builder.Services);
+            builder.ConfigureServices(builder.Services);
 
             var app = builder.Build();
 
@@ -43,21 +44,15 @@ namespace DynamicDNSViaCloudFlare
             // Configure Hangfire server
             app.UseHangfireServer();
 
-            var myJob = new MyHangfireJob(builder.Configuration);
-            RecurringJob.AddOrUpdate(() => myJob.Execute(), Cron.MinuteInterval(2));
-
+            app.ConfigureHangFireJobs(builder);
 
             app.MapRazorPages();
 
             app.Run();
         }
-        public static void ConfigureServices(WebApplicationBuilder builder, IServiceCollection services)
-        {
-            // Add Hangfire services
-            services.AddHangfire(configuration => configuration
-                .UseMemoryStorage()); // Use in-memory storage
 
-            services.Configure<CloudFlareSettings>(builder.Configuration.GetSection("CloudFlareSettings"));
-        }
+
+
+
     }
 }
