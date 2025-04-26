@@ -1,0 +1,39 @@
+﻿@page
+@model DynamicDNSViaCloudFlare.Pages.ZonesModel
+
+<h1> CloudFlare Zones</h1>
+
+@if (Model.Zones != null && Model.Zones.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Zone ID</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Plan Level</th>
+                <th>Paused</th>
+                <th>Created On</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var zone in Model.Zones)
+            {
+                <tr>
+                    <td> @zone.ZoneID </td>
+                    <td> @zone.Name </td>
+                    <td> @zone.Status </td>
+                    <td> @zone.PlanLevel </td>
+                    <td> @zone.Paused </td>
+                    <td>
+                        @zone.CreatedOn
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p> No zones found.</p>
+}

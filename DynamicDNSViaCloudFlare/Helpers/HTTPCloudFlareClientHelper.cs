@@ -74,5 +74,62 @@ namespace DynamicDNSViaCloudFlare.Helpers
                 return new PublicIPData() { status = false, ErrorMsg = ex.Message };
             }
         }
+        public static string GetPublicIpString()
+        {
+            try
+            {
+                // Query an external service to get the public IP address
+                string url = "https://api.ipify.org";
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            string ipAddress = reader.ReadToEnd();
+                            return ipAddress;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public static async Task<List<CloudFlareZone>> ListCloudFlareZonesAsync()
+        {
+            if (cfSettings == null) { throw new Exception("CloudFlare Settings not initiated"); }
+
+            string url = $"{cfSettings.BaseURL}/zones";
+            HttpMethod hMethod = HttpMethod.Get;
+            IDictionary<string, string> HeadersList = new Dictionary<string, string>
+            {
+                { "Authorization", $"Bearer {cfSettings.BearerToken}" },
+                { "User-Agent", "PostmanRuntime/7.36.1" }
+            };
+
+            var client = new HttpClient();
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            var request = new HttpRequestMessage(hMethod, url);
+            foreach (var item in HeadersList)
+            {
+                request.Headers.Add(item.Key, item.Value);
+            }
+
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var zones = JsonConvert.DeserializeObject<List<CloudFlareZone>>(responseContent);
+            return zones;
+        }
     }
 }

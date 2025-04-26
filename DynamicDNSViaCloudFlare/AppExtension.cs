@@ -14,11 +14,14 @@ namespace DynamicDNSViaCloudFlare
             using (var serviceScope = app.Services.CreateScope())
             {
                 var services = serviceScope.ServiceProvider;
-                var emailHelper = services.GetRequiredService<EmailHelper>();
-                var myJob = new MyHangfireJob(builder.Configuration, emailHelper);
-                RecurringJob.AddOrUpdate(() => myJob.Execute(), Cron.MinuteInterval(2));
+                var cfAppSettings = services.GetRequiredService<CloudFlareSettings>();
+                if (cfAppSettings.SyncDNSRecord)
+                {
+                    var emailHelper = services.GetRequiredService<EmailHelper>();
+                    var myJob = new MyHangfireJob(builder.Configuration, emailHelper);
+                    RecurringJob.AddOrUpdate(() => myJob.Execute(), Cron.MinuteInterval(2));
+                }
             }
-
         }
         public static void ConfigureServices(this WebApplicationBuilder builder, IServiceCollection services)
         {
